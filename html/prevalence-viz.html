@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:200,300,400,500,600,700" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/0.5.7/chartjs-plugin-annotation.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.3/jstat.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Posterior Prevalence Probability (PPP)</title>
+    <style>
+      *                { font-family: roboto; }
+      .myform          { display: flex; flex-wrap: wrap; width: 40em;}
+      .myform label    { display: inline-block; width: 10em; font-weight:normal; }
+      .myform fieldset { margin-bottom:1em; font-weight:bold; display:inline-block; }
+      .description     { width: 70em; margin-bottom: 2em;}
+      .mybutton        { cursor:pointer; font-weight:bold; font-size: 14pt;}
+    </style>
+    <script>
+      function submit() {
+        document.getElementById("param").submit.click();
+      }
+      function reset() {
+        document.getElementById("param").reset.click();
+      }
+      function loadSantaClaraV2() {
+        reset();
+        document.getElementById("n_u").value = 3324;
+        document.getElementById("k_u").value = 16;
+        document.getElementById("n_v").value = 157;
+        document.getElementById("k_v").value = 130;
+        submit();
+      }
+    </script>
+  </head>
+  
+  <body onLoad = "submit()">
+    <h2>Prevalence Estimator</h2>
+    <div class="description">
+      This application calculates the exact posterior distribution on
+      prevalence given the results of an imperfect test, as described
+      in the preprint <a href="bayes.pdf"
+      style="white-space:nowrap">Bayesian Beta-Binomial Prevalence
+      Estimation Using an Imperfect Test</a>.
+      
+      <h4>Instructions</h4> Enter your data into the form below and
+      click <em>Estimate Prevalence</em>. Beta priors and Monte Carlo
+      samples are optional. The default values correspond to scenario
+      3 in <a target="_blank"
+      href="https://www.medrxiv.org/content/10.1101/2020.04.14.20062463v1">COVID-19
+      Antibody Seroprevalence in Santa Clara County</a>.
+
+      <p/>
+      To see the dramatic impact of a small change in the number of
+      false positives in test calibration, try changing the false
+      positives to 4 and then 8.
+
+      <h4>Update</h4> <a target="_blank"
+	href="https://www.medrxiv.org/content/10.1101/2020.04.14.20062463v2">Version
+	2</a> of <em>Covid-19 Antibody Seroprevalence in Santa Clara
+	County</em> is based on considerably more test calibration
+	data. Click <a href="#" onclick="loadSantaClaraV2()">here</a>
+	to see the effect on prevalence estimation.
+    </div>
+      
+    <form class="myform" id="param">
+      <fieldset>
+	<legend>Field Tests</legend>
+	<label for="n">Total tests</label>
+	<input id="n" type="number" step="1" min="0" max="100000" value="3300" size="6" /><br/>
+	<label for="k">Positive tests</label>
+	<input id="k" type="number" step="1" min="0" max="100000" value="50" size="6" /><br/>
+      </fieldset>
+      <fieldset>
+	<legend>Test Calibration</legend>
+	<label for="n_u">Known negatives</label>
+	<input id="n_u" type="number" step="1" min="0" max="100000" value="401" size="6" /><br/>
+	<label for="k_u">False positives</label>
+	<input id="k_u" type="number" step="1" min="0" max="100000" value="2" size="6" /><br/>
+	<label for="n_v">Known positives</label>
+	<input id="n_v" type="number" step="1" min="0" max="100000" value="122" size="6" /><br/>
+	<label for="k_v">True positives</label>
+	<input id="k_v" type="number" step="1" min="0" max="100000" value="103" size="6" /><br/>
+      </fieldset>
+      <fieldset>
+	<legend>Test Beta Priors (optional)</legend>
+	<label for="a_u">&alpha;<sub>u</sub></label>
+	<input id="a_u" type="number" step="1" min="0" max="100000" value="1" size="6" /><br/>
+	<label for="b_u">&beta;<sub>u</sub></label>
+	<input id="b_u" type="number" step="1" min="0" max="100000" value="1" size="6" /><br/>
+	<label for="a_v">&alpha;<sub>v</sub></label>
+	<input id="a_v" type="number" step="1" min="0" max="100000" value="1" size="6" /><br/>
+	<label for="b_v">&beta;<sub>v</sub></label>
+	<input id="b_v" type="number" step="1" min="0" max="100000" value="1" size="6" /><br/>
+      </fieldset>
+      <fieldset>
+	<legend>Samples (optional)</legend>
+	<label for="N">Monte Carlo samples</label>
+	<input id="N" type="number" step="1" min="0" max="100000" value="1000" size="6" /><br/>
+	<label for="M">Grid size</label>
+	<input id="M" type="number" step="1" min="0" max="100000" value="1000" size="6" /><br/>
+	<label for="CI">Credible Interval(%)</label>
+	<input id="CI" type="number" step="1" min="0" max="100" value="95" size="6" /><br/>
+      </fieldset>
+      <fieldset style="border:0;padding:0">
+	<input class="mybutton" type="reset"  id="reset"  value="Reset" />
+	<input class="mybutton" type="submit" id="submit" value="Estimate Prevalence" />
+      </fieldset>
+    </form>
+
+    <div style="position: relative; height:640px; width:640px">
+      <canvas id="prevalence_viz"/>
+    </div>
+
+    <!--h5>Please report bugs on <a href="https://github.com/baxterhub/prevalence">Github</a>.</h5-->
+
+  </body>
+  <script src="./prevalence-viz.js"></script>
+</html>
