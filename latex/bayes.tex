@@ -35,15 +35,16 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{Bayesian Beta-Binomial Prevalence Estimation Using an Imperfect
-  Test} \author{Jonathan Baxter\\\tt{covid@baxters.biz}} \date{April 23, 2020}\maketitle
-\abstract{Following \cite{diggle_2011,greenland_1996}, we give a
-  simple formula for the Bayesian posterior density of a prevalence
-  parameter based on unreliable testing of a population. This problem
-  is of particular importance when the false positive test rate is
-  close to the prevalence in the population being tested. An efficient
-  Monte Carlo algorithm for approximating the posterior density is
-  presented, and applied to estimating the Covid-19 infection rate in
-  Santa Clara county, CA using the data reported in
+  Test} \author{Jonathan Baxter\\\tt{covid@baxters.biz}} \date{April
+  23, 2020}\maketitle \abstract{Following
+  \cite{diggle_2011,greenland_1996}, we give a simple formula for the
+  Bayesian posterior density of a prevalence parameter based on
+  unreliable testing of a population. This problem is of particular
+  importance when the false positive test rate is close to the
+  prevalence in the population being tested. An efficient Monte Carlo
+  algorithm for approximating the posterior density is presented, and
+  applied to estimating the Covid-19 infection rate in Santa Clara
+  county, CA using the data reported in
   \cite{Bendavid2020.04.14.20062463}. We show that the true Bayesian
   posterior places considerably more mass near zero, resulting in a
   prevalence estimate of 5,000--70,000 infections (median: 42,000)
@@ -53,13 +54,19 @@
 
 \section{Introduction}
 We consider the problem of estimating disease prevalence in a
-population of interest using an unreliable test. Following
-\cite{diggle_2011,greenland_1996}, we take a Bayesian approach and
-model uncertainty in the test characteristics (sensitivity and
-specificity) as well as the uncertainty due to a finite testing
-population. We extend \cite{diggle_2011} by deriving a simple
-expression for the posterior prevalence probabilty density in the
-common case of a test that has been validated against a number of
+population of interest using an unreliable test: i.e. a test with
+specificity or sensitivity less than 1. Imperfect sensitivity causes
+the raw positive rate to underestimate the true population prevalence,
+while imperfect specificity results in overestimating the population
+prevalence and underestimating the dispersion in the prevalence
+estimate.
+
+Following \cite{diggle_2011,greenland_1996}, we take a Bayesian
+approach and model uncertainty in the test characteristics
+(sensitivity and specificity) as well as the uncertainty due to a
+finite testing population. We extend \cite{diggle_2011} by deriving a
+simple expression for the posterior prevalence probabilty density in
+the common case of a test that has been validated against a number of
 known positive and negative subjects. A Monte Carlo algorithm for
 computing the prevalence posterior is presented, and applied to
 Covid-19 infection data from Santa Clara county

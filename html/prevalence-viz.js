@@ -14,9 +14,10 @@
  * @param {number} [b_u=1]   - prior parameter for false positive rate u: Beta(a_u,b_u)
  * @param {number} [a_v=1]   - prior parameter for true  positive rate v: Beta(a_v,b_v)
  * @param {number} [b_v=1]   - prior parameter for true  positive rate v: Beta(a_v,b_v)
+ * @param {number} [w=1]     - population weighting
  * @returns {number[]} the posterior pdf
  */
-function posterior({n, k, n_u, k_u, n_v, k_v, N=1000, M=1000, a_u=1, b_u=1, a_v=1, b_v=1}) {
+function posterior({n, k, n_u, k_u, n_v, k_v, N=1000, M=1000, a_u=1, b_u=1, a_v=1, b_v=1, w=1}) {
     // reuse u,v samples for all posterior (theta) values
     let us=[], vs=[], duvs=[];
     for (let i=0; i<N; i++) { 
@@ -67,7 +68,7 @@ function posterior({n, k, n_u, k_u, n_v, k_v, N=1000, M=1000, a_u=1, b_u=1, a_v=
         total   = t;
     }
 
-    // normalize
+    // normalization
     total /= pdf.length
     for (let j=0; j<=M; j++) {
 	pdf[j] /= total;
@@ -76,31 +77,14 @@ function posterior({n, k, n_u, k_u, n_v, k_v, N=1000, M=1000, a_u=1, b_u=1, a_v=
     return pdf;
 }
 
-
-function parseParam(elem, parse) {
-    return parse(document.getElementById(elem).value);
-}
-
-function anyIsNaN(args) {
-    args.some(isNaN);
-}
-
 function parseParams() {
     let params = {};
-    params.n   = parseParam("n"  , parseInt  );
-    params.k   = parseParam("k"  , parseInt  );
-    params.n_u = parseParam("n_u", parseInt  );
-    params.k_u = parseParam("k_u", parseInt  );
-    params.n_v = parseParam("n_v", parseInt  );
-    params.k_v = parseParam("k_v", parseInt  );
-    params.N   = parseParam("N"  , parseInt  );
-    params.M   = parseParam("M"  , parseInt  );
-    params.CI  = parseParam("CI" , parseInt  );
-    params.a_u = parseParam("a_u", parseFloat);
-    params.b_u = parseParam("b_u", parseFloat);
-    params.a_v = parseParam("a_v", parseFloat);
-    params.b_v = parseParam("b_v", parseFloat);
+    allParams.forEach((k) => params[k] = parseFloat(document.getElementById(k).value));
     return params;
+}
+
+function setFormParams(params) {
+    allParams.forEach((k) => document.getElementById(k).value = params[k]);
 }
 
 // the chart
@@ -222,16 +206,16 @@ const annotation = {
     }
 };
 
-function makeAnnotation(name, value, offset, len, yAdjust) {
+function makeAnnotation(name, value, offset, len, weight, xAdjust, yAdjust) {
     let ann           = Object.assign({}, annotation);
     ann.label         = Object.assign({}, annotation.label);
     ann.id            = name;
     // position on the x-axis
     ann.value         = value - offset;
     // label corresponding to the position on the x-axis
-    let mapped        = value * 100 / len;
+    let mapped        = value * 100 * weight / len;
     ann.label.content = [`${name}:${mapped.toFixed(2)}%`];
-    ann.label.xAdjust = 40;
+    ann.label.xAdjust = xAdjust;
     ann.label.yAdjust = yAdjust;
     return ann;
 }
@@ -255,6 +239,16 @@ let citation = {
 	enabled: true
     }    
 };
+
+function updateUrl() {
+    let paramFormElem = document.getElementById(paramForm);
+    let search = new URLSearchParams(new FormData(paramFormElem));
+    let url = new URL(window.location.href);
+    url.search = search.toString();
+    let params = parseParams();
+    history.pushState(params, "Posterior Prevalence Probability (PPP)", url);
+}
+
 const updateChart = async () => {
     // read the parameters
     let params = parseParams();
@@ -280,9 +274,11 @@ const updateChart = async () => {
     let config = chart ? chart : default_config;
     
     // replace labels and data
+    let weight  = params.w;
     config.data.labels.length = 0;
     for (let i=begin; i<=end; i++) {
-	let x = 100 * i / len;
+	let x = 100 * i * weight / len;
+	if (x > 100) x = 100;
 	config.data.labels.push(x.toFixed(1));
     }
     let dataset = {
@@ -301,10 +297,10 @@ const updateChart = async () => {
     if (chart) config.annotation.elements = []; // hack to clear computed annotations
     let annotations = [];
     let yAdjust = 25
-    annotations.push(makeAnnotation(`lower ${(100*alpha/2).toFixed(1)}%`     , lower , begin, len, 0        ));
-    annotations.push(makeAnnotation(`upper ${(100*(1-alpha/2)).toFixed(1)}%` , upper , begin, len, yAdjust  ));
-    annotations.push(makeAnnotation("median"                                 , median, begin, len, 2*yAdjust));
-    annotations.push(makeAnnotation("mode"                                   , mode  , begin, len, 3*yAdjust));
+    annotations.push(makeAnnotation(`lower ${(100*alpha/2).toFixed(1)}%`     , lower , begin, len, weight, 55, 0        ));
+    annotations.push(makeAnnotation(`upper ${(100*(1-alpha/2)).toFixed(1)}%` , upper , begin, len, weight, 55, yAdjust  ));
+    annotations.push(makeAnnotation("median"                                 , median, begin, len, weight, 45, 2*yAdjust));
+    annotations.push(makeAnnotation("mode"                                   , mode  , begin, len, weight, 40, 3*yAdjust));
     citation.value = max/20;
     annotations.push(citation);
     config.options.annotation.annotations = annotations;
@@ -320,4 +316,18 @@ const updateChart = async () => {
     }
 }
 
-document.getElementById("param").addEventListener("submit", (event) => { event.preventDefault(); updateChart(); })
+// event listeners
+document.getElementById("paramForm").addEventListener(
+    "submit",
+    (event) => {
+	event.preventDefault();
+	updateUrl();
+	updateChart();
+    });
+
+window.addEventListener(
+    "popstate",
+    (event) => {
+	setFormParams(history.state);
+	updateChart();
+    });

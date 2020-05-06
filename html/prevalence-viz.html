@@ -17,24 +17,27 @@
       .mybutton        { cursor:pointer; font-weight:bold; font-size: 14pt;}
     </style>
     <script>
+      const paramForm = "paramForm";
+      const allParams = ["n","k","n_u","k_u","n_v","k_v","a_u","b_u","a_v","b_v","N","M","CI","w"];
       function submit() {
-        document.getElementById("param").submit.click();
+        document.getElementById(paramForm).submit.click();
       }
       function reset() {
-        document.getElementById("param").reset.click();
+        document.getElementById(paramForm).reset.click();
       }
-      function loadSantaClaraV2() {
+      function setParam(param, urlParams) {
+        if (urlParams.has(param)) document.getElementById(param).value = parseFloat(urlParams.get(param));
+      }
+      function load() {
         reset();
-        document.getElementById("n_u").value = 3324;
-        document.getElementById("k_u").value = 16;
-        document.getElementById("n_v").value = 157;
-        document.getElementById("k_v").value = 130;
+        let urlParams = new URLSearchParams(window.location.search);
+        allParams.forEach((k) => setParam(k, urlParams));
         submit();
       }
     </script>
   </head>
   
-  <body onLoad = "submit()">
+  <body onLoad = "load()">
     <h2>Prevalence Estimator</h2>
     <div class="description">
       This application calculates the exact posterior distribution on
@@ -50,57 +53,123 @@
       href="https://www.medrxiv.org/content/10.1101/2020.04.14.20062463v1">COVID-19
       Antibody Seroprevalence in Santa Clara County</a>.
 
-      <p/>
-      To see the dramatic impact of a small change in the number of
-      false positives in test calibration, try changing the false
-      positives to 4 and then 8.
+      <p/> To see the impact of a small change in the number of false
+      positives in test calibration, try changing the false positives
+      to <a href="?k_u=4">4</a> and
+      then <a href="?k_u=8">8</a>.
 
-      <h4>Update</h4> <a target="_blank"
-	href="https://www.medrxiv.org/content/10.1101/2020.04.14.20062463v2">Version
-	2</a> of <em>Covid-19 Antibody Seroprevalence in Santa Clara
-	County</em> is based on considerably more test calibration
-	data. Click <a href="#" onclick="loadSantaClaraV2()">here</a>
-	to see the effect on prevalence estimation.
+      <p/>Once the posterior has been calculated, copy the page URL if
+      you wish to share the result.
+      
+      <h4>More Examples</h4>
+      <ol>
+	<li><a target="_blank"
+	    href="https://www.medrxiv.org/content/10.1101/2020.04.14.20062463v1?versioned=true">
+	    COVID-19 Antibody Seroprevalence in Santa Clara County,
+	    Version 1:</a>
+	  <br/>
+	  Prevalence Posteriors: 
+	    <ul>
+	      <li>Scenario 1:
+		<a href="?n=3300&k=50&n_u=371&k_u=2&n_v=85&k_v=78&a_u=1&b_u=1&a_v=1&b_v=1&N=1000&M=1000&CI=95&w=1">
+		  unweighted
+		</a>
+		|
+		<a href="?n=3300&k=50&n_u=371&k_u=2&n_v=85&k_v=78&a_u=1&b_u=1&a_v=1&b_v=1&N=1000&M=1000&CI=95&w=1.87">
+		  weighted
+		</a>
+	      </li>
+	      <li>Scenario 2:
+		<a href="?n=3300&k=50&n_u=30&k_u=0&n_v=37&k_v=25&a_u=1&b_u=1&a_v=1&b_v=1&N=1000&M=1000&CI=95&w=1">
+		  unweighted
+		</a>
+		|
+		<a href="?n=3300&k=50&n_u=30&k_u=0&n_v=37&k_v=25&a_u=1&b_u=1&a_v=1&b_v=1&N=1000&M=1000&CI=95&w=1.87">
+		  weighted
+		</a>
+	      </li>
+	      <li>Scenario 3:
+		<a href="?n=3300&k=50&n_u=401&k_u=2&n_v=122&k_v=103&a_u=1&b_u=1&a_v=1&b_v=1&N=1000&M=1000&CI=95&w=1">unweighted</a>
+		|
+		<a href="?n=3300&k=50&n_u=401&k_u=2&n_v=122&k_v=103&a_u=1&b_u=1&a_v=1&b_v=1&N=1000&M=1000&CI=95&w=1.87">weighted</a>
+	      </li>
+	    </ul>
+	</li>
+	<li><a target="_blank"
+	    href="https://www.medrxiv.org/content/10.1101/2020.04.14.20062463v2?versioned=true">
+	    COVID-19 Antibody Seroprevalence in Santa Clara County,
+	    Version 2:</a>
+	    <ul>
+	      <li>Prevalence Posterior:
+		<a href="?n=3300&k=50&n_u=3324&k_u=16&n_v=157&k_v=130&a_u=1&b_u=1&a_v=1&b_v=1&N=1000&M=1000&CI=95&w=1">unweighted</a>
+		|
+		<a href="?n=3300&k=50&n_u=3324&k_u=16&n_v=157&k_v=130&a_u=1&b_u=1&a_v=1&b_v=1&N=1000&M=1000&CI=95&w=2.33">weighted</a>		
+	    </ul>
+	</li>
+	<li><a target="_blank"
+	       href="https://www.medrxiv.org/content/10.1101/2020.04.26.20079822v1">
+	       Estimation of seroprevalence of novel coronavirus
+	       disease (COVID-19) using preserved serum at an
+	       outpatient setting in Kobe, Japan: A cross-sectional
+	       study.
+	  </a>
+	  <ul>
+	    <li>
+	      Prevalence Posterior:
+	      <a href="?n=1000&k=33&n_u=800&k_u=0&n_v=207&k_v=154&a_u=1&b_u=1&a_v=1&b_v=1&N=1000&M=1000&CI=95&w=1">unweighted</a>
+	      |
+	      <a href="?n=1000&k=33&n_u=800&k_u=0&n_v=207&k_v=154&a_u=1&b_u=1&a_v=1&b_v=1&N=1000&M=1000&CI=95&w=0.82">weighted</a>
+	    </li>
+	    <li>
+	      <a href="https://www.kurabo.co.jp/bio/English/support/catalogDownload.php?f=111&file_num=1">
+		Test calibration data
+	      </a>
+	    </li>
+	  </ul>
+	</li>
+      </ol>
     </div>
       
-    <form class="myform" id="param">
+    <form class="myform" id="paramForm">
       <fieldset>
 	<legend>Field Tests</legend>
 	<label for="n">Total tests</label>
-	<input id="n" type="number" step="1" min="0" max="100000" value="3300" size="6" /><br/>
+	<input id="n" name="n" type="number" step="1" min="0" max="100000" value="3300" size="6" /><br/>
 	<label for="k">Positive tests</label>
-	<input id="k" type="number" step="1" min="0" max="100000" value="50" size="6" /><br/>
+	<input id="k" name="k" type="number" step="1" min="0" max="100000" value="50" size="6" /><br/>
       </fieldset>
       <fieldset>
 	<legend>Test Calibration</legend>
 	<label for="n_u">Known negatives</label>
-	<input id="n_u" type="number" step="1" min="0" max="100000" value="401" size="6" /><br/>
+	<input id="n_u" name="n_u" type="number" step="1" min="0" max="100000" value="401" size="6" /><br/>
 	<label for="k_u">False positives</label>
-	<input id="k_u" type="number" step="1" min="0" max="100000" value="2" size="6" /><br/>
+	<input id="k_u" name="k_u" type="number" step="1" min="0" max="100000" value="2" size="6" /><br/>
 	<label for="n_v">Known positives</label>
-	<input id="n_v" type="number" step="1" min="0" max="100000" value="122" size="6" /><br/>
+	<input id="n_v" name="n_v" type="number" step="1" min="0" max="100000" value="122" size="6" /><br/>
 	<label for="k_v">True positives</label>
-	<input id="k_v" type="number" step="1" min="0" max="100000" value="103" size="6" /><br/>
+	<input id="k_v" name="k_v" type="number" step="1" min="0" max="100000" value="103" size="6" /><br/>
       </fieldset>
       <fieldset>
 	<legend>Test Beta Priors (optional)</legend>
 	<label for="a_u">&alpha;<sub>u</sub></label>
-	<input id="a_u" type="number" step="1" min="0" max="100000" value="1" size="6" /><br/>
+	<input id="a_u" name="a_u" type="number" step="0.01" min="0" max="100000" value="1" size="6" /><br/>
 	<label for="b_u">&beta;<sub>u</sub></label>
-	<input id="b_u" type="number" step="1" min="0" max="100000" value="1" size="6" /><br/>
+	<input id="b_u" name="b_u" type="number" step="0.01" min="0" max="100000" value="1" size="6" /><br/>
 	<label for="a_v">&alpha;<sub>v</sub></label>
-	<input id="a_v" type="number" step="1" min="0" max="100000" value="1" size="6" /><br/>
+	<input id="a_v" name="a_v" type="number" step="0.01" min="0" max="100000" value="1" size="6" /><br/>
 	<label for="b_v">&beta;<sub>v</sub></label>
-	<input id="b_v" type="number" step="1" min="0" max="100000" value="1" size="6" /><br/>
+	<input id="b_v" name="b_v" type="number" step="0.01" min="0" max="100000" value="1" size="6" /><br/>
       </fieldset>
       <fieldset>
-	<legend>Samples (optional)</legend>
+	<legend>Algorithm/Stats Params (optional)</legend>
 	<label for="N">Monte Carlo samples</label>
-	<input id="N" type="number" step="1" min="0" max="100000" value="1000" size="6" /><br/>
+	<input id="N" name="N" type="number" step="1" min="0" max="100000" value="1000" size="6" /><br/>
 	<label for="M">Grid size</label>
-	<input id="M" type="number" step="1" min="0" max="100000" value="1000" size="6" /><br/>
+	<input id="M" name="M" type="number" step="1" min="0" max="100000" value="1000" size="6" /><br/>
 	<label for="CI">Credible Interval(%)</label>
-	<input id="CI" type="number" step="1" min="0" max="100" value="95" size="6" /><br/>
+	<input id="CI" name="CI" type="number" step="0.01" min="0" max="100" value="95" size="6" /><br/>
+	<label for="w">Population Weighting</label>
+	<input id="w" name="w" type="number" step="0.01" min="0" max="100" value="1" size="6" /><br/>
       </fieldset>
       <fieldset style="border:0;padding:0">
 	<input class="mybutton" type="reset"  id="reset"  value="Reset" />
@@ -112,7 +181,7 @@
       <canvas id="prevalence_viz"/>
     </div>
 
-    <!--h5>Please report bugs on <a href="https://github.com/baxterhub/prevalence">Github</a>.</h5-->
+    <h5>Source available on <a target="_blank" href="https://github.com/testprev-src/prevalence">Github</a>.</h5>
 
   </body>
   <script src="./prevalence-viz.js"></script>
