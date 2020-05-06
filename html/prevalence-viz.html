@@ -44,7 +44,9 @@
       prevalence given the results of an imperfect test, as described
       in the preprint <a href="bayes.pdf"
       style="white-space:nowrap">Bayesian Beta-Binomial Prevalence
-      Estimation Using an Imperfect Test</a>.
+      Estimation Using an Imperfect Test</a>
+      by <a href="https://scholar.google.com/citations?user=MqllIBgAAAAJ&hl=en">Jonathan
+      Baxter</a>.
       
       <h4>Instructions</h4> Enter your data into the form below and
       click <em>Estimate Prevalence</em>. Beta priors and Monte Carlo
@@ -61,6 +63,57 @@
       <p/>Once the posterior has been calculated, copy the page URL if
       you wish to share the result.
       
+    <form class="myform" id="paramForm">
+      <fieldset>
+	<legend>Field Tests</legend>
+	<label for="n">Total tests</label>
+	<input id="n" name="n" type="number" step="1" min="0" max="100000" value="3300" size="6" /><br/>
+	<label for="k">Positive tests</label>
+	<input id="k" name="k" type="number" step="1" min="0" max="100000" value="50" size="6" /><br/>
+      </fieldset>
+      <fieldset>
+	<legend>Test Calibration</legend>
+	<label for="n_u">Known negatives</label>
+	<input id="n_u" name="n_u" type="number" step="1" min="0" max="100000" value="401" size="6" /><br/>
+	<label for="k_u">False positives</label>
+	<input id="k_u" name="k_u" type="number" step="1" min="0" max="100000" value="2" size="6" /><br/>
+	<label for="n_v">Known positives</label>
+	<input id="n_v" name="n_v" type="number" step="1" min="0" max="100000" value="122" size="6" /><br/>
+	<label for="k_v">True positives</label>
+	<input id="k_v" name="k_v" type="number" step="1" min="0" max="100000" value="103" size="6" /><br/>
+      </fieldset>
+      <fieldset>
+	<legend>Test Beta Priors (optional)</legend>
+	<label for="a_u">&alpha;<sub>u</sub></label>
+	<input id="a_u" name="a_u" type="number" step="0.01" min="0" max="100000" value="1" size="6" /><br/>
+	<label for="b_u">&beta;<sub>u</sub></label>
+	<input id="b_u" name="b_u" type="number" step="0.01" min="0" max="100000" value="1" size="6" /><br/>
+	<label for="a_v">&alpha;<sub>v</sub></label>
+	<input id="a_v" name="a_v" type="number" step="0.01" min="0" max="100000" value="1" size="6" /><br/>
+	<label for="b_v">&beta;<sub>v</sub></label>
+	<input id="b_v" name="b_v" type="number" step="0.01" min="0" max="100000" value="1" size="6" /><br/>
+      </fieldset>
+      <fieldset>
+	<legend>Algorithm/Stats Params (optional)</legend>
+	<label for="N">Monte Carlo samples</label>
+	<input id="N" name="N" type="number" step="1" min="0" max="100000" value="1000" size="6" /><br/>
+	<label for="M">Grid size</label>
+	<input id="M" name="M" type="number" step="1" min="0" max="100000" value="1000" size="6" /><br/>
+	<label for="CI">Credible Interval(%)</label>
+	<input id="CI" name="CI" type="number" step="0.01" min="0" max="100" value="95" size="6" /><br/>
+	<label for="w">Population Weighting</label>
+	<input id="w" name="w" type="number" step="0.01" min="0" max="100" value="1" size="6" /><br/>
+      </fieldset>
+      <fieldset style="border:0;padding:0">
+	<input class="mybutton" type="reset"  id="reset"  value="Reset" />
+	<input class="mybutton" type="submit" id="submit" value="Estimate Prevalence" />
+      </fieldset>
+    </form>
+
+    <div style="position: relative; height:640px; width:640px">
+      <canvas id="prevalence_viz"/>
+    </div>
+
       <h4>More Examples</h4>
       <ol>
 	<li><a target="_blank"
@@ -130,57 +183,6 @@
       </ol>
     </div>
       
-    <form class="myform" id="paramForm">
-      <fieldset>
-	<legend>Field Tests</legend>
-	<label for="n">Total tests</label>
-	<input id="n" name="n" type="number" step="1" min="0" max="100000" value="3300" size="6" /><br/>
-	<label for="k">Positive tests</label>
-	<input id="k" name="k" type="number" step="1" min="0" max="100000" value="50" size="6" /><br/>
-      </fieldset>
-      <fieldset>
-	<legend>Test Calibration</legend>
-	<label for="n_u">Known negatives</label>
-	<input id="n_u" name="n_u" type="number" step="1" min="0" max="100000" value="401" size="6" /><br/>
-	<label for="k_u">False positives</label>
-	<input id="k_u" name="k_u" type="number" step="1" min="0" max="100000" value="2" size="6" /><br/>
-	<label for="n_v">Known positives</label>
-	<input id="n_v" name="n_v" type="number" step="1" min="0" max="100000" value="122" size="6" /><br/>
-	<label for="k_v">True positives</label>
-	<input id="k_v" name="k_v" type="number" step="1" min="0" max="100000" value="103" size="6" /><br/>
-      </fieldset>
-      <fieldset>
-	<legend>Test Beta Priors (optional)</legend>
-	<label for="a_u">&alpha;<sub>u</sub></label>
-	<input id="a_u" name="a_u" type="number" step="0.01" min="0" max="100000" value="1" size="6" /><br/>
-	<label for="b_u">&beta;<sub>u</sub></label>
-	<input id="b_u" name="b_u" type="number" step="0.01" min="0" max="100000" value="1" size="6" /><br/>
-	<label for="a_v">&alpha;<sub>v</sub></label>
-	<input id="a_v" name="a_v" type="number" step="0.01" min="0" max="100000" value="1" size="6" /><br/>
-	<label for="b_v">&beta;<sub>v</sub></label>
-	<input id="b_v" name="b_v" type="number" step="0.01" min="0" max="100000" value="1" size="6" /><br/>
-      </fieldset>
-      <fieldset>
-	<legend>Algorithm/Stats Params (optional)</legend>
-	<label for="N">Monte Carlo samples</label>
-	<input id="N" name="N" type="number" step="1" min="0" max="100000" value="1000" size="6" /><br/>
-	<label for="M">Grid size</label>
-	<input id="M" name="M" type="number" step="1" min="0" max="100000" value="1000" size="6" /><br/>
-	<label for="CI">Credible Interval(%)</label>
-	<input id="CI" name="CI" type="number" step="0.01" min="0" max="100" value="95" size="6" /><br/>
-	<label for="w">Population Weighting</label>
-	<input id="w" name="w" type="number" step="0.01" min="0" max="100" value="1" size="6" /><br/>
-      </fieldset>
-      <fieldset style="border:0;padding:0">
-	<input class="mybutton" type="reset"  id="reset"  value="Reset" />
-	<input class="mybutton" type="submit" id="submit" value="Estimate Prevalence" />
-      </fieldset>
-    </form>
-
-    <div style="position: relative; height:640px; width:640px">
-      <canvas id="prevalence_viz"/>
-    </div>
-
     <h5>Source available on <a target="_blank" href="https://github.com/testprev-src/prevalence">Github</a>.</h5>
 
   </body>
